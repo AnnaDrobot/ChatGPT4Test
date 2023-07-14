@@ -1,12 +1,10 @@
-using ChatGPT4TestModel;
-
 namespace ChatGPT4TestTest
 {
-    public class Test
+    public class StudentConverterTests
     {
         private readonly StudentConverter _converter;
 
-        public Test()
+        public StudentConverterTests()
         {
             _converter = new StudentConverter();
         }
