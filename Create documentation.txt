@@ -1,0 +1,287 @@
+Me:
+
+I have the following code in C# programming language:
+Player.cs
+
+public class Player
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public int Experience { get; set; }
+        public List<int> Skills { get; set; }
+    }
+
+    public class PlayerAnalyzer
+    {
+        public double CalculateScore(List<Player> players)
+        {
+            double score = 0;
+
+            foreach (var player in players)
+            {
+                if (player.Skills is null)
+                {
+                    throw new NullReferenceException();
+                }
+
+                double skillsAverage = player.Skills.Sum() / (double)player.Skills.Count;
+                double contribution = player.Age * player.Experience * skillsAverage;
+
+                if (player.Age < 18)
+                {
+                    contribution *= 0.5;
+                }
+
+                if (player.Experience > 10)
+                {
+                    contribution *= 1.2;
+                }
+
+                score += contribution;
+            }
+
+            return score;
+        }
+    }
+
+Student.cs
+
+public class Student
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public int Grade { get; set; }
+        public bool Exceptional { get; set; }
+        public bool HonorRoll { get; set; }
+        public bool Passed { get; set; }
+    }
+
+    public class StudentConverter
+    {
+        public List<Student> ConvertStudents(List<Student> students)
+        {
+            return students.Select(student =>
+            {
+                var result = new Student
+                {
+                    Name = student.Name,
+                    Age = student.Age,
+                    Grade = student.Grade
+                };
+
+                if (student.Grade > 90)
+                {
+                    if (student.Age < 21)
+                    {
+                        result.Exceptional = true;
+                    }
+                    else
+                    {
+                        result.HonorRoll = true;
+                    }
+                }
+                else if (student.Grade > 70)
+                {
+                    result.Passed = true;
+                }
+                else
+                {
+                    result.Passed = false;
+                }
+
+                return result;
+            }).ToList();
+        }
+    }
+
+This code is covered by the following tests (xUnit framework is used):
+
+PlayerAnalyzerTests.cs
+
+public class PlayerAnalyzerTests
+    {
+        [Fact]
+        public void NormalPlayerTest()
+        {
+            var player = new Player { Age = 25, Experience = 5, Skills = new List<int> { 2, 2, 2 } };
+            var analyzer = new PlayerAnalyzer();
+            var score = analyzer.CalculateScore(new List<Player> { player });
+            Assert.Equal(250, score);
+        }
+
+        [Fact]
+        public void JuniorPlayerTest()
+        {
+            var player = new Player { Age = 15, Experience = 3, Skills = new List<int> { 3, 3, 3 } };
+            var analyzer = new PlayerAnalyzer();
+            var score = analyzer.CalculateScore(new List<Player> { player });
+            Assert.Equal(67.5, score);
+        }
+
+        [Fact]
+        public void SeniorPlayerTest()
+        {
+            var player = new Player { Age = 35, Experience = 15, Skills = new List<int> { 4, 4, 4 } };
+            var analyzer = new PlayerAnalyzer();
+            var score = analyzer.CalculateScore(new List<Player> { player });
+            Assert.Equal(2520, score);
+        }
+
+        [Fact]
+        public void MultiplePlayersTest()
+        {
+            var player1 = new Player { Age = 25, Experience = 5, Skills = new List<int> { 2, 2, 2 } };
+            var player2 = new Player { Age = 35, Experience = 15, Skills = new List<int> { 4, 4, 4 } };
+            var analyzer = new PlayerAnalyzer();
+            var score = analyzer.CalculateScore(new List<Player> { player1, player2 });
+            Assert.Equal(2770, score); // 250 from player1 and 2520 from player2
+        }
+
+        [Fact]
+        public void SkillsIsNullTest()
+        {
+            var player = new Player { Age = 25, Experience = 5, Skills = null };
+            var analyzer = new PlayerAnalyzer();
+            Assert.Throws<NullReferenceException>(() => analyzer.CalculateScore(new List<Player> { player }));
+        }
+
+        [Fact]
+        public void EmptyArrayTest()
+        {
+            var analyzer = new PlayerAnalyzer();
+            var score = analyzer.CalculateScore(new List<Player>());
+            Assert.Equal(0, score);
+        }
+    }
+
+StudentConverterTests.cs
+
+public class StudentConverterTests
+    {
+        private readonly StudentConverter _converter;
+
+        public StudentConverterTests()
+        {
+            _converter = new StudentConverter();
+        }
+
+        [Fact]
+        public void HighAchieverTest()
+        {
+            var students = new List<Student> { new Student { Age = 21, Grade = 91 } };
+            var result = _converter.ConvertStudents(students);
+            Assert.True(result[0].HonorRoll);
+        }
+
+        [Fact]
+        public void ExceptionalYoungHighAchieverTest()
+        {
+            var students = new List<Student> { new Student { Age = 20, Grade = 91 } };
+            var result = _converter.ConvertStudents(students);
+            Assert.True(result[0].Exceptional);
+        }
+
+        [Fact]
+        public void PassedStudentTest()
+        {
+            var students = new List<Student> { new Student { Age = 22, Grade = 80 } };
+            var result = _converter.ConvertStudents(students);
+            Assert.True(result[0].Passed);
+        }
+
+        [Fact]
+        public void FailedStudentTest()
+        {
+            var students = new List<Student> { new Student { Age = 22, Grade = 70 } };
+            var result = _converter.ConvertStudents(students);
+            Assert.False(result[0].Passed);
+        }
+
+        [Fact]
+        public void EmptyArrayTest()
+        {
+            var students = new List<Student>();
+            var result = _converter.ConvertStudents(students);
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void NotArrayTest()
+        {
+            Assert.Throws<ArgumentNullException>(() => _converter.ConvertStudents(null));
+        }
+    }
+
+I need you to write a documentation for these tests, that will be in Readme.md file. Write 2 paragraphs, 4-10 sentences total.
+After that write a guide on how to run these tests locally. This guide should be also in markdown format.
+
+ChatGPT:
+
+## Test Documentation
+
+The test suite includes two classes: `PlayerAnalyzerTests` and `StudentConverterTests`. These classes contain various unit tests written using the xUnit framework to verify the correctness of the `PlayerAnalyzer` and `StudentConverter` classes respectively.
+
+In the `PlayerAnalyzerTests` class, there are six test methods:
+
+1. `NormalPlayerTest`: This test verifies the calculation of the score for a player with average age, experience, and skills. The expected score is 250, which is calculated based on the provided formula.
+
+2. `JuniorPlayerTest`: This test checks the score calculation for a junior player (age < 18) with moderate experience and skills. The expected score is 67.5, considering the age-based contribution adjustment.
+
+3. `SeniorPlayerTest`: This test validates the score calculation for a senior player (age > 35) with extensive experience and skills. The expected score is 2520, accounting for the age and experience-based contribution adjustments.
+
+4. `MultiplePlayersTest`: This test evaluates the score calculation when multiple players are provided. It verifies that the scores of individual players are correctly summed. The expected score is 2770, which is the sum of the scores from player1 (250) and player2 (2520).
+
+5. `SkillsIsNullTest`: This test ensures that an exception of type `NullReferenceException` is thrown when a player with null skills is passed to the `CalculateScore` method.
+
+6. `EmptyArrayTest`: This test confirms that when an empty player list is provided, the calculated score is zero.
+
+In the `StudentConverterTests` class, there are six test methods:
+
+1. `HighAchieverTest`: This test checks whether a student with a grade above 90 is marked as being on the honor roll. The test verifies that the `HonorRoll` property is set to `true` for such students.
+
+2. `ExceptionalYoungHighAchieverTest`: This test ensures that a student with a grade above 90 and an age below 21 is marked as exceptional. The `Exceptional` property is expected to be `true` for such students.
+
+3. `PassedStudentTest`: This test verifies that students with grades above 70 but below 90 are marked as having passed. The `Passed` property is expected to be `true` for these students.
+
+4. `FailedStudentTest`: This test checks that students with grades below 70 are marked as having failed. The `Passed` property is expected to be `false` for such students.
+
+5. `EmptyArrayTest`: This test confirms that an empty student list results in an empty result list after conversion.
+
+6. `NotArrayTest`: This test ensures that passing a `null` argument to the `ConvertStudents` method throws a `ArgumentNullException`.
+
+The tests cover different scenarios and edge cases to validate the behavior of the corresponding classes and methods. Running these tests provides confidence in the correctness of the implementation and helps maintain the desired functionality.
+
+## Local Test Execution Guide
+
+To run the tests locally, follow the steps below:
+
+1. **Prerequisites:**
+   - Install the latest version of [.NET Core SDK](https://dotnet.microsoft.com/download) suitable for your operating system.
+
+2. **Clone the Repository:**
+   - Clone the repository containing the code and tests to your local machine using Git or download the code as a ZIP archive and extract it.
+
+3. **Open a Terminal/Command Prompt:**
+   - Open a terminal or command prompt and navigate to the root directory of the project.
+
+4. **Build the Solution:**
+   - Run the following command to restore the project dependencies and build the solution:
+     ```shell
+     dotnet build
+     ```
+
+5. **Run the Tests:**
+   - To execute all the tests, run the following command:
+     ```shell
+     dotnet test
+     ```
+   - The test runner will execute the tests and display the results in the console.
+
+   - Alternatively, you can run specific test classes or individual test methods by providing the test filter option. For example, to run only the `PlayerAnalyzerTests` class tests, use the following command:
+     ```shell
+     dotnet test --filter FullyQualifiedName~PlayerAnalyzerTests
+     ```
+
+   - The test runner will execute the specified tests and display the results in the console.
+
+By following these steps, you can easily run the tests locally and verify the functionality of the code. The test results will indicate whether the code behaves as expected and help identify any issues or errors that may need attention.
